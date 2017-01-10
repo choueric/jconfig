@@ -1,3 +1,5 @@
+// Package jconfig provides struct JConfig to handle with configurations in
+// JSON format.
 package jconfig
 
 import (
@@ -8,6 +10,7 @@ import (
 	"reflect"
 )
 
+// JConfig structure is an entity representing configurations.
 type JConfig struct {
 	path       string
 	filename   string
@@ -15,8 +18,89 @@ type JConfig struct {
 	data       interface{} // pointer of structure
 }
 
+// FilePath returns the full path of configuration file.
 func (c *JConfig) FilePath() string {
 	return c.path + "/" + c.filename
+}
+
+// Path returns the path of directory containing configuration file.
+func (c *JConfig) Path() string {
+	return c.path
+}
+
+// Filename returns just the file name of configuration file.
+func (c *JConfig) Filename() string {
+	return c.filename
+}
+
+// New returns a pointer of JConfig that contains information of configuration
+// file path and filename and user-defined configuration type t.
+func New(path, filename string, t interface{}) *JConfig {
+	c := &JConfig{path: path, filename: filename}
+	c.configType = reflect.TypeOf(t)
+
+	return c
+}
+
+// Data retruns the user-defined configuration data.
+func (c *JConfig) Data() interface{} {
+	return c.data
+}
+
+// Load loads and parses the configuration file, then allocats a user-defined
+// configuration variable which is stored in JConfig and is returned.
+func (c *JConfig) Load(defContent string) (interface{}, error) {
+	if c.filename == "" || c.path == "" {
+		return nil, errors.New("jconfig: invalid path")
+	}
+
+	if err := checkPath(c.path); err != nil {
+		return nil, err
+	}
+	name := c.FilePath()
+	if err := checkFile(name, defContent); err != nil {
+		return nil, err
+	}
+
+	v := reflect.New(c.configType)
+	initializeStruct(c.configType, v.Elem())
+	c.data = v.Interface()
+	//fmt.Println("type is", reflect.TypeOf(c.data))
+
+	file, err := os.Open(name)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	b, err := ioutil.ReadAll(file)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = json.Unmarshal(b, c.data); err != nil {
+		return nil, err
+	}
+
+	return c.data, nil
+}
+
+// Save writes the user-defined configruations into JSON file.
+func (c *JConfig) Save() error {
+	b, err := json.MarshalIndent(c.data, "  ", "  ")
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Create(c.FilePath())
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	file.Write(b)
+
+	return nil
 }
 
 func checkPath(path string) error {
@@ -61,69 +145,4 @@ func initializeStruct(t reflect.Type, v reflect.Value) {
 		default:
 		}
 	}
-}
-
-func New(path, filename string, t interface{}) *JConfig {
-	c := &JConfig{path: path, filename: filename}
-	c.configType = reflect.TypeOf(t)
-
-	return c
-}
-
-func (c *JConfig) Data() interface{} {
-	return c.data
-}
-
-// return type is pointer to the structure.
-func (c *JConfig) Load(defContent string) (interface{}, error) {
-	if c.filename == "" || c.path == "" {
-		return nil, errors.New("jconfig: invalid path")
-	}
-
-	if err := checkPath(c.path); err != nil {
-		return nil, err
-	}
-	name := c.FilePath()
-	if err := checkFile(name, defContent); err != nil {
-		return nil, err
-	}
-
-	v := reflect.New(c.configType)
-	initializeStruct(c.configType, v.Elem())
-	c.data = v.Interface()
-	//fmt.Println("type is", reflect.TypeOf(c.data))
-
-	file, err := os.Open(name)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	b, err := ioutil.ReadAll(file)
-	if err != nil {
-		return nil, err
-	}
-
-	if err = json.Unmarshal(b, c.data); err != nil {
-		return nil, err
-	}
-
-	return c.data, nil
-}
-
-func (c *JConfig) Save() error {
-	b, err := json.MarshalIndent(c.data, "  ", "  ")
-	if err != nil {
-		return err
-	}
-
-	file, err := os.Create(c.FilePath())
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	file.Write(b)
-
-	return nil
 }
