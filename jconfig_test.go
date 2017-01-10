@@ -58,7 +58,14 @@ func (c *Config) String() string {
 func Test_New(t *testing.T) {
 	config := jconfig.New(".", "config.json", Config{})
 
-	fmt.Println("filepath:", config.FilePath())
+	if config.FilePath() != "./config.json" {
+		t.Error("filepath is not ./config.json instead of", config.FilePath())
+	}
+
+	if config.Data() != nil {
+		t.Error("config Data should be nil")
+	}
+
 }
 
 func Test_Load(t *testing.T) {
@@ -66,16 +73,17 @@ func Test_Load(t *testing.T) {
 
 	p, err := config.Load(DefaultConfig)
 	if err != nil {
-		fmt.Println("load config error:", err)
-		return
+		t.Error("load config error:", err)
 	}
 
 	cc := config.Data().(*Config)
-	fmt.Println(cc)
-
 	cc.Current = cc.Current + 1
 
 	pp := p.(*Config)
+	if pp.Current != cc.Current {
+		t.Error("data does not match.")
+	}
+
 	fmt.Println(pp)
 }
 
@@ -84,16 +92,14 @@ func Test_Save(t *testing.T) {
 
 	p, err := config.Load(DefaultConfig)
 	if err != nil {
-		fmt.Println("load config error:", err)
+		t.Error("load config error:", err)
 		return
 	}
 
 	pp := p.(*Config)
-	fmt.Println(pp)
-
-	pp.Current = pp.Current + 1
+	pp.Current = 88
 
 	if err := config.Save(); err != nil {
-		fmt.Println("save config error:", err)
+		t.Error("save config error:", err)
 	}
 }
