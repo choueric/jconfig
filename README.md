@@ -23,8 +23,7 @@ import (
 	"github.com/choueric/jconfig"
 )
 
-const DefContent = `
-{
+const DefContent = `{
 	"server": "127.0.0.1:8088"
 }
 `
@@ -34,15 +33,15 @@ type Config struct {
 }
 
 func getConfig() *Config {
-	jc := jconfig.New(".", "config.json", Config{})
+	// NOTE: Config{} is the your own type to store configurations.
+	jc := jconfig.New("config.json", Config{}) 
 
 	if _, err := jc.Load(DefContent); err != nil {
 		fmt.Println("load config error:", err)
 		return nil
 	}
 
-	config := jc.Data().(*Config)
-	return config
+	return jc.Data().(*Config) // convert to your own type and return.
 }
 ```
 
