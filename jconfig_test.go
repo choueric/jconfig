@@ -84,7 +84,10 @@ func Test_Load(t *testing.T) {
 		t.Error("load config error:", err)
 	}
 
-	cc := config.Data().(*Config)
+	cc, ok := config.Data().(*Config)
+	if !ok {
+		t.Error("type assertion failed")
+	}
 	cc.Current = cc.Current + 1
 
 	pp := p.(*Config)
@@ -104,7 +107,10 @@ func Test_Save(t *testing.T) {
 		return
 	}
 
-	pp := p.(*Config)
+	pp, ok := p.(*Config)
+	if !ok {
+		t.Error("type assertion failed")
+	}
 	pp.Current = 88
 
 	if err := config.Save(); err != nil {
