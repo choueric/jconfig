@@ -70,7 +70,7 @@ func Test_Load(t *testing.T) {
 		return
 	}
 
-	cc := config.Data.(*Config)
+	cc := config.Data().(*Config)
 	fmt.Println(cc)
 
 	cc.Current = cc.Current + 1

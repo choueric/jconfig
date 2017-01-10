@@ -9,14 +9,14 @@ import (
 )
 
 type JConfig struct {
-	Path       string
-	Filename   string
+	path       string
+	filename   string
 	configType reflect.Type
-	Data       interface{} // pointer of structure
+	data       interface{} // pointer of structure
 }
 
 func (c *JConfig) FilePath() string {
-	return c.Path + "/" + c.Filename
+	return c.path + "/" + c.filename
 }
 
 func checkPath(path string) error {
@@ -64,19 +64,23 @@ func initializeStruct(t reflect.Type, v reflect.Value) {
 }
 
 func New(path, filename string, t interface{}) *JConfig {
-	c := &JConfig{Path: path, Filename: filename}
+	c := &JConfig{path: path, filename: filename}
 	c.configType = reflect.TypeOf(t)
 
 	return c
 }
 
+func (c *JConfig) Data() interface{} {
+	return c.data
+}
+
 // return type is pointer to the structure.
 func (c *JConfig) Load(defContent string) (interface{}, error) {
-	if c.Filename == "" || c.Path == "" {
+	if c.filename == "" || c.path == "" {
 		return nil, errors.New("jconfig: invalid path")
 	}
 
-	if err := checkPath(c.Path); err != nil {
+	if err := checkPath(c.path); err != nil {
 		return nil, err
 	}
 	name := c.FilePath()
@@ -86,8 +90,8 @@ func (c *JConfig) Load(defContent string) (interface{}, error) {
 
 	v := reflect.New(c.configType)
 	initializeStruct(c.configType, v.Elem())
-	c.Data = v.Interface()
-	//fmt.Println("type is", reflect.TypeOf(c.Data))
+	c.data = v.Interface()
+	//fmt.Println("type is", reflect.TypeOf(c.data))
 
 	file, err := os.Open(name)
 	if err != nil {
@@ -100,15 +104,15 @@ func (c *JConfig) Load(defContent string) (interface{}, error) {
 		return nil, err
 	}
 
-	if err = json.Unmarshal(b, c.Data); err != nil {
+	if err = json.Unmarshal(b, c.data); err != nil {
 		return nil, err
 	}
 
-	return c.Data, nil
+	return c.data, nil
 }
 
 func (c *JConfig) Save() error {
-	b, err := json.MarshalIndent(c.Data, "  ", "  ")
+	b, err := json.MarshalIndent(c.data, "  ", "  ")
 	if err != nil {
 		return err
 	}
