@@ -56,10 +56,18 @@ func (c *Config) String() string {
 }
 
 func Test_New(t *testing.T) {
-	config := jconfig.New(".", "config.json", Config{})
+	config := jconfig.New("/tmp/config.json", Config{})
 
-	if config.FilePath() != "./config.json" {
-		t.Error("filepath is not ./config.json instead of", config.FilePath())
+	if config.FilePath() != "/tmp/config.json" {
+		t.Error("filepath is wrong", config.FilePath())
+	}
+
+	if config.Dir() != "/tmp" {
+		t.Error("Dir is wrong", config.Dir())
+	}
+
+	if config.Filename() != "config.json" {
+		t.Error("Filename is wrong", config.Filename())
 	}
 
 	if config.Data() != nil {
@@ -69,7 +77,7 @@ func Test_New(t *testing.T) {
 }
 
 func Test_Load(t *testing.T) {
-	config := jconfig.New(".", "config.json", Config{})
+	config := jconfig.New("config.json", Config{})
 
 	p, err := config.Load(DefaultConfig)
 	if err != nil {
@@ -88,7 +96,7 @@ func Test_Load(t *testing.T) {
 }
 
 func Test_Save(t *testing.T) {
-	config := jconfig.New(".", "config.json", Config{})
+	config := jconfig.New("config.json", Config{})
 
 	p, err := config.Load(DefaultConfig)
 	if err != nil {

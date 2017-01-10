@@ -7,12 +7,13 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
+	"path"
 	"reflect"
 )
 
 // JConfig structure is an entity representing configurations.
 type JConfig struct {
-	path       string
+	dir        string
 	filename   string
 	configType reflect.Type
 	data       interface{} // pointer of structure
@@ -20,12 +21,12 @@ type JConfig struct {
 
 // FilePath returns the full path of configuration file.
 func (c *JConfig) FilePath() string {
-	return c.path + "/" + c.filename
+	return c.dir + "/" + c.filename
 }
 
-// Path returns the path of directory containing configuration file.
-func (c *JConfig) Path() string {
-	return c.path
+// Dir returns the path of directory containing configuration file.
+func (c *JConfig) Dir() string {
+	return c.dir
 }
 
 // Filename returns just the file name of configuration file.
@@ -34,9 +35,17 @@ func (c *JConfig) Filename() string {
 }
 
 // New returns a pointer of JConfig that contains information of configuration
-// file path and filename and user-defined configuration type t.
-func New(path, filename string, t interface{}) *JConfig {
-	c := &JConfig{path: path, filename: filename}
+// file path and user-defined configuration type t.
+func New(filepath string, t interface{}) *JConfig {
+	var dir, file string
+	if path.IsAbs(filepath) {
+		dir = path.Dir(filepath)
+		file = path.Base(filepath)
+	} else {
+		dir = "."
+		file = filepath
+	}
+	c := &JConfig{dir: dir, filename: file}
 	c.configType = reflect.TypeOf(t)
 
 	return c
@@ -49,12 +58,13 @@ func (c *JConfig) Data() interface{} {
 
 // Load loads and parses the configuration file, then allocats a user-defined
 // configuration variable which is stored in JConfig and is returned.
+// If directory or file does not exist, Load will create with defContent.
 func (c *JConfig) Load(defContent string) (interface{}, error) {
-	if c.filename == "" || c.path == "" {
+	if c.filename == "" || c.dir == "" {
 		return nil, errors.New("jconfig: invalid path")
 	}
 
-	if err := checkPath(c.path); err != nil {
+	if err := checkPath(c.dir); err != nil {
 		return nil, err
 	}
 	name := c.FilePath()
