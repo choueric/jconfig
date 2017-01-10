@@ -16,3 +16,5 @@ import (
 -----
 
 See test cases in `jconfig_test.go`.
+
+Another usage is config.go of [kbdashboard](https://github.com/choueric/kernelBuildDashboard.git)
