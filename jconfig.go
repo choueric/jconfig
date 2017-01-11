@@ -124,10 +124,10 @@ func checkFile(filepath string, defContent string) error {
 	_, err := os.Stat(filepath)
 	if err != nil && os.IsNotExist(err) {
 		file, err := os.Create(filepath)
+		defer file.Close()
 		if _, err = file.Write([]byte(defContent)); err != nil {
 			return err
 		}
-		file.Close()
 	} else if err != nil {
 		return err
 	}
