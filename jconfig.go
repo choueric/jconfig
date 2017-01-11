@@ -35,8 +35,8 @@ func (c *JConfig) Filename() string {
 }
 
 // New returns a pointer of JConfig that contains information of configuration
-// file path and user-defined configuration type t.
-func New(filepath string, t interface{}) *JConfig {
+// file path and variable i of user-defined configuration type.
+func New(filepath string, i interface{}) *JConfig {
 	var dir, file string
 	if path.IsAbs(filepath) {
 		dir = path.Dir(filepath)
@@ -46,7 +46,7 @@ func New(filepath string, t interface{}) *JConfig {
 		file = filepath
 	}
 	c := &JConfig{dir: dir, filename: file}
-	c.configType = reflect.TypeOf(t)
+	c.configType = reflect.TypeOf(i)
 
 	return c
 }
