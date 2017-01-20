@@ -2,6 +2,8 @@
 
 This is a Go package to parse a configuration file using JSON.
 
+[![GoDoc](https://godoc.org/github.com/choueric/jconfig?status.svg)](https://godoc.org/github.com/choueric/jconfig)
+
 ## Installation
 
 ```sh
