@@ -2,6 +2,9 @@
 
 This is a Go package to parse a configuration file using JSON.
 
+[![Build Status](https://travis-ci.org/choueric/jconfig.svg?branch=master)](https://travis-ci.org/choueric/jconfig)
+[![GoDoc](https://godoc.org/github.com/choueric/jconfig?status.svg)](https://godoc.org/github.com/choueric/jconfig)
+
 ## Installation
 
 ```sh
