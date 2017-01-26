@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 	"reflect"
 )
 
@@ -21,7 +22,7 @@ type JConfig struct {
 
 // FilePath returns the full path of configuration file.
 func (c *JConfig) FilePath() string {
-	return c.dir + "/" + c.filename
+	return filepath.Join(c.dir, c.filename)
 }
 
 // Dir returns the path of directory containing configuration file.
